@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, effect, signal, viewChild, ViewContainerRef } from '@angular/core';
 
 @Component({
 	selector: 'app-root',
@@ -22,6 +22,10 @@ import { Component, signal } from '@angular/core';
 			<p class="read-the-docs">
 				Click on the Vite and Angular logos to learn more
 			</p>
+		</div>
+		
+		<div>
+			<div #remote_app></div>
 		</div>
 	`,
 	styles: `
@@ -72,6 +76,14 @@ import { Component, signal } from '@angular/core';
 })
 export class AppComponent {
 	count = signal(0);
+	viewContainer = viewChild('remote_app', { read: ViewContainerRef })
+
+	constructor() {
+		effect(async () => {
+			const m = await import('remote/remote-app')
+			this.viewContainer()?.createComponent(m.AppComponent)
+		});
+	}
 
 	increment() {
 		this.count.update((value) => value + 1);
